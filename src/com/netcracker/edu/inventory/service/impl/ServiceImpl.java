@@ -63,21 +63,21 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public void filtrateByManufacturer(Device[] devices, String manufacturer) {
+    public void filtrateByManufacturer(Device[] devices, final String manufacturer) {
         filterBy(devices, "getManufacturer", manufacturer);
     }
 
     @Override
-    public void filtrateByModel(Device[] devices, String model) {
+    public void filtrateByModel(Device[] devices, final String model) {
         filterBy(devices, "getModel", model);
     }
 
     @Override
-    public boolean isValidDeviceForInsertToRack(Device device) {
+    public boolean isValidDeviceForInsertToRack(final Device device) {
         return device != null && device.getIn() > 0;
     }
 
-    private void filterBy(Device[] devices, String methodName, String comparableValue) {
+    private void filterBy(Device[] devices, final String methodName, final String comparableValue) {
         Method method;
         String value = null;
         for (int i = 0; i < devices.length; i++) {

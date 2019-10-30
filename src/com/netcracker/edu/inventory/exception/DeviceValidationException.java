@@ -11,11 +11,11 @@ public class DeviceValidationException extends RuntimeException {
         super();
     }
 
-    public DeviceValidationException(String operation) {
+    public DeviceValidationException(final String operation) {
         super(getMsg() + (operation == null ? "" : " " + operation));
     }
 
-    public DeviceValidationException(String operation, Device device) {
+    public DeviceValidationException(final String operation, Device device) {
         super(getMsg() + (operation == null ? "" : " " + operation));
         this.device = device;
     }

@@ -9,11 +9,11 @@ import java.util.logging.Logger;
 public class Log {
     private static Logger logger;
 
-    private static void setLogger(Logger logger) {
+    private static void setLogger(final Logger logger) {
         Log.logger = logger;
     }
 
-    public static Logger getLogger(String loggerName) {
+    public static Logger getLogger(final String loggerName) {
         setLogger(Logger.getLogger(loggerName));
         return logger;
     }

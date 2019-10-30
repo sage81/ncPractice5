@@ -38,14 +38,6 @@ public class RackArrayImpl implements Rack {
         devices = new Device[this.size];
     }
 
-    private boolean isSizeNotValid(final int size) {
-        return size <= 0;
-    }
-
-    private boolean isClassValid(Class clazz) {
-        return clazz != null && Device.class.isAssignableFrom(clazz);
-    }
-
     @Override
     public int getSize() {
         return this.size;
@@ -145,23 +137,31 @@ public class RackArrayImpl implements Rack {
         return filedDevices;
     }
 
-    public boolean isRackEmpty() {
+    private boolean isSizeNotValid(final int size) {
+        return size <= 0;
+    }
+
+    private boolean isClassValid(final Class clazz) {
+        return clazz != null && Device.class.isAssignableFrom(clazz);
+    }
+
+    private boolean isRackEmpty() {
         return devices.length == 0;
     }
 
-    public boolean isSlotExist(int index) {
+    private boolean isSlotExist(final int index) {
         return !isRackEmpty() && index >= 0 && index <= getSize() - 1;
     }
 
-    public boolean isSlotEmpty(int index) {
+    private boolean isSlotEmpty(final int index) {
         return isSlotExist(index) && devices[index] == null;
     }
 
-    public boolean isSlotAvailable(int index) {
+    private boolean isSlotAvailable(final int index) {
         return isSlotEmpty(index);
     }
 
-    private void logAndThrowIndexOutOfBounds(int index) {
+    private void logAndThrowIndexOutOfBounds(final int index) {
         final String errMsg ="Wrong slot index["
                 + index + "], should be in the range:0-" + (getSize() - 1);
         log.severe(errMsg);

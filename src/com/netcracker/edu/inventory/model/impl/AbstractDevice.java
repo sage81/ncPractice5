@@ -14,7 +14,7 @@ public abstract class AbstractDevice implements Device {
     private String manufacturer;
     private String model;
     private Date productionDate;
-    private Logger log = Log.getLogger(AbstractDevice.class.getName());
+    private static final Logger log = Log.getLogger(AbstractDevice.class.getName());
 
     public AbstractDevice() {
         Log.initLogger();
