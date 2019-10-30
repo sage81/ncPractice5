@@ -32,3 +32,4 @@ hs_err_pid*
 .idea/workspace.xml
 ncPractice4.iml
 *.iml
+/src/com/netcracker/edu/inventory/service/impl/ServiceUtils.java

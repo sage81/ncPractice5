@@ -1,10 +1,10 @@
 package com.netcracker.edu.inventory.model.impl;
 
+import com.netcracker.edu.inventory.logger.Log;
 import com.netcracker.edu.inventory.model.Device;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.logging.LogManager;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public abstract class AbstractDevice implements Device {
@@ -14,10 +14,10 @@ public abstract class AbstractDevice implements Device {
     private String manufacturer;
     private String model;
     private Date productionDate;
-    private Logger log = Logger.getLogger(AbstractDevice.class.getName());
+    private Logger log = Log.getLogger(AbstractDevice.class.getName());
 
     public AbstractDevice() {
-        logReadConfig();
+        Log.initLogger();
     }
 
     public AbstractDevice(int in, String type, String manufacturer, String model, Date productionDate) {
@@ -26,7 +26,7 @@ public abstract class AbstractDevice implements Device {
         this.manufacturer = manufacturer;
         this.model = model;
         this.productionDate = productionDate;
-        logReadConfig();
+        Log.initLogger();
     }
 
     @Override
@@ -87,15 +87,6 @@ public abstract class AbstractDevice implements Device {
         this.productionDate = productionDate;
     }
 
-    private void logReadConfig() {
-        try {
-            LogManager.getLogManager().readConfiguration(
-                    AbstractDevice.class.getResourceAsStream("/logging.properties"));
-        } catch (IOException e) {
-            System.err.println("Could not setup logger configuration: " + e.toString());
-        }
-    }
-
     @Override
     public String toString() {
         return "Device{" +
@@ -105,5 +96,22 @@ public abstract class AbstractDevice implements Device {
                 ", model='" + model + '\'' +
                 ", productionDate=" + productionDate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractDevice that = (AbstractDevice) o;
+        return in == that.in &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(manufacturer, that.manufacturer) &&
+                Objects.equals(model, that.model) &&
+                Objects.equals(productionDate, that.productionDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(in, type, manufacturer, model, productionDate);
     }
 }

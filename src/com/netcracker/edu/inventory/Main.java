@@ -2,44 +2,39 @@ package com.netcracker.edu.inventory;
 
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
-import com.netcracker.edu.inventory.model.impl.Battery;
-import com.netcracker.edu.inventory.model.impl.RackArrayImpl;
+import com.netcracker.edu.inventory.model.impl.*;
 
 public class Main {
 
     public static void main(String[] args) {
-
-        Battery battery = new Battery(1,"bat", "man", "model", null, 45);
-
         Rack rack = new RackArrayImpl(10);
-        rack.insertDevToSlot(battery, 0);
+        Device[] devices = new Device[rack.getSize()];
 
-        System.out.println(rack.removeDevFromSlot(0));
-        showRack(rack);
+        Battery battery = new Battery();
+        battery.setIn(1);
 
+        Router router = new Router();
+        router.setIn(2);
+
+        Switch sw = new Switch();
+        sw.setIn(3);
+
+        WifiRouter wifiRouter = new WifiRouter();
+        wifiRouter.setIn(4);
+
+        devices[0] = battery;
+        devices[1] = router;
+        devices[2] = sw;
+        devices[3] = wifiRouter;
+
+        rack.insertDevToSlot(devices[0],0);
+        rack.insertDevToSlot(devices[1],1);
+        rack.insertDevToSlot(devices[2],2);
+        rack.insertDevToSlot(devices[3],3);
+
+        Utl.showRack(rack);
+
+        Utl.showDevArray(rack.getAllDeviceAsArray());
     }
 
-    private static void showRack(Rack rack) {
-        for (int i = 0; i < rack.getSize(); i++) {
-            if (rack.getDevAtSlot(i) != null) {
-                System.out.println("slot"+ i + " | " + rack.getDevAtSlot(i));
-            } else {
-                System.out.println("slot"+ i + " | empty" );
-            }
-        }
-    }
-
-    private static void fillRack(Device[] devices, Rack rack) {
-        for (int i = 0; i < devices.length; i++) {
-            rack.insertDevToSlot(devices[i], i);
-        }
-    }
-
-    private static void showDevArray(Device[] devices) {
-        for (Device device : devices) {
-            if (device != null) {
-                System.out.println(device);
-            }
-        }
-    }
 }

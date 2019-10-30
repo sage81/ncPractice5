@@ -1,35 +1,49 @@
 package com.netcracker.edu.inventory.model.impl;
 
 import com.netcracker.edu.inventory.exception.DeviceValidationException;
+import com.netcracker.edu.inventory.logger.Log;
 import com.netcracker.edu.inventory.model.Device;
 import com.netcracker.edu.inventory.model.Rack;
+import com.netcracker.edu.inventory.service.Service;
+import com.netcracker.edu.inventory.service.impl.ServiceImpl;
 
-import java.io.IOException;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class RackArrayImpl implements Rack {
 
     private final int size;
     private Device[] devices;
-    private static Logger log = Logger.getLogger(RackArrayImpl.class.getName());
+    private static final Logger log = Log.getLogger(RackArrayImpl.class.getName());
+    private final Class clazz;
 
-    public RackArrayImpl(int size) {
+    public RackArrayImpl(final int size, Class clazz) {
+        Log.initLogger();
 
-        try {
-            LogManager.getLogManager().readConfiguration(
-                    RackArrayImpl.class.getResourceAsStream("/logging.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!isClassValid(clazz) || isSizeNotValid(size)) {
+            logAndThrowIllegalArgument("Type cannot be null or not Device");
         }
-
-        if (size > 0) {
             this.size = size;
-        } else {
-            log.severe("Size of rack(" + size + ") can not be 0 or less");
-            throw new IllegalArgumentException("Size of rack can not be 0 or less");
+            this.clazz = clazz;
+            devices = new Device[this.size];
+    }
+
+    public RackArrayImpl(final int size) {
+        Log.initLogger();
+        this.clazz = Device.class;
+
+        if (isSizeNotValid(size)) {
+            logAndThrowIllegalArgument("Size of rack can not be 0 or less");
         }
+        this.size = size;
         devices = new Device[this.size];
+    }
+
+    private boolean isSizeNotValid(final int size) {
+        return size <= 0;
+    }
+
+    private boolean isClassValid(Class clazz) {
+        return clazz != null && Device.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -50,32 +64,30 @@ public class RackArrayImpl implements Rack {
 
     @Override
     public Device getDevAtSlot(int index) {
-
         Device device = null;
-
         if (isSlotExist(index)) {
             device = devices[index];
         } else {
-            throwIndexOutOfBoundsException(index);
+            logAndThrowIndexOutOfBounds(index);
         }
-
         return device;
     }
 
     @Override
     public boolean insertDevToSlot(Device device, int index) {
-
+        Service service = new ServiceImpl();
         boolean isInserted = false;
 
         if (!isSlotExist(index)) {
-            throwIndexOutOfBoundsException(index);
-        } else if(!isDeviceValid(device)) {
-            log.severe("Rack.insertDevToSlot " + device);
+            logAndThrowIndexOutOfBounds(index);
+        } else if (!service.isValidDeviceForInsertToRack(device)) {
             throw new DeviceValidationException("Rack.insertDevToSlot", device);
+        } else if (!isDeviceTypeCompatible(device)) {
+            logAndThrowIllegalArgument("Type of Device is't compatible with type that rack can store");
         }
 
-        if (isSlotAvailable(index) && device != null) {
-            devices[index] = device.getIn() > 0 ? device : null;
+        if (isSlotAvailable(index)) {
+            devices[index] = device;
             isInserted = (devices[index] != null);
         } else {
             log.warning("Slot" + index + " is not available");
@@ -86,6 +98,7 @@ public class RackArrayImpl implements Rack {
 
     @Override
     public Device removeDevFromSlot(int index) {
+
         Device device = null;
 
         if (isSlotExist(index)) {
@@ -96,7 +109,7 @@ public class RackArrayImpl implements Rack {
                 log.warning("Can not remove from empty slot " + index);
             }
         } else {
-            throwIndexOutOfBoundsException(index);
+            logAndThrowIndexOutOfBounds(index);
         }
 
         return device;
@@ -105,15 +118,31 @@ public class RackArrayImpl implements Rack {
     @Override
     public Device getDevByIN(int in) {
         Device returenedDevice = null;
-
         for (Device device : devices) {
             if (device != null && device.getIn() == in) {
                 returenedDevice =  device;
                 break;
             }
         }
-
         return returenedDevice;
+    }
+
+    @Override
+    public Class getTypeOfDevices() {
+        return clazz;
+    }
+
+    @Override
+    public Device[] getAllDeviceAsArray() {
+        Device[] filedDevices = new Device[getNonEmptyAmount(devices)];
+        int i = 0;
+
+        for (Device device : devices) {
+            if (device != null) {
+                filedDevices[i++] = device;
+            }
+        }
+        return filedDevices;
     }
 
     public boolean isRackEmpty() {
@@ -132,15 +161,28 @@ public class RackArrayImpl implements Rack {
         return isSlotEmpty(index);
     }
 
-    private void throwIndexOutOfBoundsException(int index) {
-        log.severe("Wrong slot index["
-                + index + "], should be in the range:0-" + (getSize() - 1));
-        throw new IndexOutOfBoundsException("Wrong slot index["
-                + index + "], should be in the range:0-" + (getSize() - 1));
+    private void logAndThrowIndexOutOfBounds(int index) {
+        final String errMsg ="Wrong slot index["
+                + index + "], should be in the range:0-" + (getSize() - 1);
+        log.severe(errMsg);
+        throw new IndexOutOfBoundsException(errMsg);
     }
 
-    public boolean isDeviceValid(Device device) {
-        return device != null && device.getIn() > 0;
+    private void logAndThrowIllegalArgument(final String errorMessage) {
+        log.severe(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
+    }
+
+    private boolean isDeviceTypeCompatible(final Device device) {
+        return clazz.isAssignableFrom(device.getClass());
+    }
+
+    private int getNonEmptyAmount(final Device[] devices) {
+        int counter = 0;
+        for (Device device : devices) {
+            if (device != null) counter++;
+        }
+        return counter;
     }
 
 }
